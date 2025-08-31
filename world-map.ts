@@ -1,6 +1,6 @@
-const TileSize: number = 32;
+export const TILE_SIZE: number = 32;
 
-const enum TileType {
+export const enum TileType {
     Grassland,
     Mountains,
     Water,
@@ -42,7 +42,7 @@ export class WorldMap {
     }
 
     public getTileName(x: number, y: number): string {
-        return TILE_NAMES[this.getTileType(x, y)];
+        return TILE_NAMES[this.getTileType(y, x)];
     }
 
     public getTileColor(x: number, y: number): string {
@@ -50,6 +50,14 @@ export class WorldMap {
     }
 
     public getTileType(x: number, y: number): TileType {
-        return this.grid[x][y];
+        return this.grid[y][x];
+    }
+
+    public getWidth() {
+        return this.grid[0].length;
+    }
+
+    public getHeight() {
+        return this.grid.length;
     }
 }

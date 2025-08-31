@@ -1,4 +1,4 @@
-const TileSize = 32;
+export const TILE_SIZE = 32;
 const TILE_COLORS = {
     [0 /* TileType.Grassland */]: "#619906ff",
     [1 /* TileType.Mountains */]: "#7a7a7aff",
@@ -30,12 +30,18 @@ export class WorldMap {
         }
     }
     getTileName(x, y) {
-        return TILE_NAMES[this.getTileType(x, y)];
+        return TILE_NAMES[this.getTileType(y, x)];
     }
     getTileColor(x, y) {
         return TILE_COLORS[this.getTileType(x, y)];
     }
     getTileType(x, y) {
-        return this.grid[x][y];
+        return this.grid[y][x];
+    }
+    getWidth() {
+        return this.grid[0].length;
+    }
+    getHeight() {
+        return this.grid.length;
     }
 }
