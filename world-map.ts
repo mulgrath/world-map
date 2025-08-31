@@ -1,3 +1,5 @@
+import { Player } from "./player.js";
+
 export const TILE_SIZE: number = 32;
 
 export const enum TileType {
@@ -7,6 +9,23 @@ export const enum TileType {
     Forest,
     Town,
 }
+
+const mapString: string = 
+   `WWWMMMMMWWWWWWWWWMMM
+    WWFGGFFMMWWMGGGFWFMM
+    WWWTGGFFMWMMMGGFTGFM
+    WWFGGGFGFWWMGGFFGFMM
+    WWFGGGFFFWWMGGFFFGMM
+    WWGFGFFFFWWMMGGFFFMM
+    WWWGGFFFWWWMMGFFFFMM
+    WWWGGGFFFWMMGFFFFGGM
+    WWWWGGFFWWMGFFFFGGMM
+    WWWWGGFFFFFFFFMGGMMM
+    WWWGGGFFFFFFFGMMGMMM
+    WWWWGWWMMGFGMMMMMMMM
+    WWFGGWWWWWWWWWWMMMMM
+    WWGTGWWWWWWWWWWWWMMM
+    WWWWWWWWWWWWWWWWWWWW`;
 
 const TILE_COLORS = {
     [TileType.Grassland]: "#619906ff",
@@ -26,19 +45,23 @@ const TILE_NAMES = {
 
 export class WorldMap {
     private grid: number[][] = [];
+    private player: Player;
 
-    constructor (width: number, height: number) {
-        // Temporary test code to display every type of tile
+    constructor (width: number, height: number, player: Player) {
+        const cleanMapString = mapString.replace(/\s+/g, "");
         let curTileId = 0;
         for (let y = 0; y < height; y++) {
             const row: number[] = [];
             for (let x = 0; x < width; x++) {
-                row.push(curTileId);
+                const mapChar: string = cleanMapString.charAt(curTileId);
+                
+                row.push(this.getTypeByChar(mapChar));
                 curTileId++;
-                if (curTileId > 4) curTileId = 0;
             }
             this.grid.push(row);
         }
+
+        this.player = player;
     }
 
     public getTileName(x: number, y: number): string {
@@ -59,5 +82,38 @@ export class WorldMap {
 
     public getHeight() {
         return this.grid.length;
+    }
+
+    public isValidMove(direction: [number, number]): boolean {
+        const curPos = this.player.getPosition();
+        const destTile = this.getTileType(curPos[0] + direction[0], curPos[1] + direction[1]);
+
+        if (destTile === TileType.Mountains || destTile === TileType.Water) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    public getPlayerTilePos(): [number, number] {
+        return this.player.getPosition();
+    }
+
+    private getTypeByChar(char: string): number {
+        switch (char) {
+            case "G":
+                return TileType.Grassland;
+            case "M":
+                return TileType.Mountains;
+            case "W":
+                return TileType.Water;
+            case "F":
+                return TileType.Forest;
+            case "T":
+                return TileType.Town;
+            default:
+                throw new Error("Invalid tile character.");
+        }
     }
 }

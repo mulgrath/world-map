@@ -1,4 +1,19 @@
 export const TILE_SIZE = 32;
+const mapString = `WWWMMMMMWWWWWWWWWMMM
+    WWFGGFFMMWWMGGGFWFMM
+    WWWTGGFFMWMMMGGFTGFM
+    WWFGGGFGFWWMGGFFGFMM
+    WWFGGGFFFWWMGGFFFGMM
+    WWGFGFFFFWWMMGGFFFMM
+    WWWGGFFFWWWMMGFFFFMM
+    WWWGGGFFFWMMGFFFFGGM
+    WWWWGGFFWWMGFFFFGGMM
+    WWWWGGFFFFFFFFMGGMMM
+    WWWGGGFFFFFFFGMMGMMM
+    WWWWGWWMMGFGMMMMMMMM
+    WWFGGWWWWWWWWWWMMMMM
+    WWGTGWWWWWWWWWWWWMMM
+    WWWWWWWWWWWWWWWWWWWW`;
 const TILE_COLORS = {
     [0 /* TileType.Grassland */]: "#619906ff",
     [1 /* TileType.Mountains */]: "#7a7a7aff",
@@ -14,20 +29,20 @@ const TILE_NAMES = {
     [4 /* TileType.Town */]: "town",
 };
 export class WorldMap {
-    constructor(width, height) {
+    constructor(width, height, player) {
         this.grid = [];
-        // Temporary test code to display every type of tile
+        const cleanMapString = mapString.replace(/\s+/g, "");
         let curTileId = 0;
         for (let y = 0; y < height; y++) {
             const row = [];
             for (let x = 0; x < width; x++) {
-                row.push(curTileId);
+                const mapChar = cleanMapString.charAt(curTileId);
+                row.push(this.getTypeByChar(mapChar));
                 curTileId++;
-                if (curTileId > 4)
-                    curTileId = 0;
             }
             this.grid.push(row);
         }
+        this.player = player;
     }
     getTileName(x, y) {
         return TILE_NAMES[this.getTileType(y, x)];
@@ -43,5 +58,34 @@ export class WorldMap {
     }
     getHeight() {
         return this.grid.length;
+    }
+    isValidMove(direction) {
+        const curPos = this.player.getPosition();
+        const destTile = this.getTileType(curPos[0] + direction[0], curPos[1] + direction[1]);
+        if (destTile === 1 /* TileType.Mountains */ || destTile === 2 /* TileType.Water */) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    getPlayerTilePos() {
+        return this.player.getPosition();
+    }
+    getTypeByChar(char) {
+        switch (char) {
+            case "G":
+                return 0 /* TileType.Grassland */;
+            case "M":
+                return 1 /* TileType.Mountains */;
+            case "W":
+                return 2 /* TileType.Water */;
+            case "F":
+                return 3 /* TileType.Forest */;
+            case "T":
+                return 4 /* TileType.Town */;
+            default:
+                throw new Error("Invalid tile character.");
+        }
     }
 }

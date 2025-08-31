@@ -10,9 +10,13 @@ export class Viewport {
     }
 
     public render(): void {
+        this.drawMap();
+        this.drawPlayer(this.map.getPlayerTilePos());
+    }
+
+    private drawMap() {
         const width = this.map.getWidth();
         const height = this.map.getHeight();
-
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 const color = this.map.getTileColor(x, y);
@@ -74,5 +78,12 @@ export class Viewport {
         this.ctx.fillRect(pixelX + 6, pixelY + 4, 6, 16);
         this.ctx.fillRect(pixelX + 12, pixelY + 8, 8, 12);
         this.ctx.fillRect(pixelX + 20, pixelY + 4, 6, 16);
+    }
+
+    private drawPlayer(position: [number, number]) {
+        const pixelX = position[0] * TILE_SIZE;
+        const pixelY = position[1] * TILE_SIZE;
+        this.ctx.fillStyle = "#ffe600ff";
+        this.ctx.fillRect(pixelX + 10, pixelY + 10, 10, 10)
     }
 }
