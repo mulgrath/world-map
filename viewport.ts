@@ -16,8 +16,6 @@ export class Viewport {
         // Draw everything fresh
         this.drawMap();
         this.drawPlayer(this.map.getPlayerVisualPos());
-        
-        requestAnimationFrame(() => this.render());
     }
 
     private drawMap() {
@@ -70,9 +68,9 @@ export class Viewport {
 
     private drawTown(pixelX: number, pixelY: number) {
         this.ctx.fillStyle = "#8b8b8bff";
-        this.ctx.fillRect(pixelX + 6, pixelY + 4, 6, 16);
-        this.ctx.fillRect(pixelX + 12, pixelY + 8, 8, 12);
-        this.ctx.fillRect(pixelX + 20, pixelY + 4, 6, 16);
+        this.ctx.fillRect(pixelX + 6, pixelY + 8, 6, 16);
+        this.ctx.fillRect(pixelX + 12, pixelY + 12, 8, 12);
+        this.ctx.fillRect(pixelX + 20, pixelY + 8, 6, 16);
     }
 
     private drawPlayer(position: [number, number]) {
