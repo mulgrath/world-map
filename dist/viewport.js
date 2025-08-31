@@ -5,8 +5,12 @@ export class Viewport {
         this.ctx = canvasContext;
     }
     render() {
+        // Clear the entire canvas
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        // Draw everything fresh
         this.drawMap();
-        this.drawPlayer(this.map.getPlayerTilePos());
+        this.drawPlayer(this.map.getPlayerVisualPos());
+        requestAnimationFrame(() => this.render());
     }
     drawMap() {
         const width = this.map.getWidth();
@@ -35,8 +39,7 @@ export class Viewport {
                     case 4 /* TileType.Town */:
                         this.drawTown(pixelX, pixelY);
                         break;
-                    default:
-                        break;
+                    default: break;
                 }
             }
         }

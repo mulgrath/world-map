@@ -2,22 +2,22 @@ export class InputHandler {
     constructor() {
         this.moveDirection = [0, 0];
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'RightArrow' || event.key === 'd') {
+            if (event.key === 'ArrowRight' || event.key === 'd') {
                 this.moveRight();
             }
         });
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'LeftArrow' || event.key === 'a') {
+            if (event.key === 'ArrowLeft' || event.key === 'a') {
                 this.moveLeft();
             }
         });
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'UpArrow' || event.key === 'w') {
+            if (event.key === 'ArrowUp' || event.key === 'w') {
                 this.moveUp();
             }
         });
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'DownArrow' || event.key === 's') {
+            if (event.key === 'ArrowDown' || event.key === 's') {
                 this.moveDown();
             }
         });

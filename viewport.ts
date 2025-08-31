@@ -10,8 +10,14 @@ export class Viewport {
     }
 
     public render(): void {
+        // Clear the entire canvas
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        
+        // Draw everything fresh
         this.drawMap();
-        this.drawPlayer(this.map.getPlayerTilePos());
+        this.drawPlayer(this.map.getPlayerVisualPos());
+        
+        requestAnimationFrame(() => this.render());
     }
 
     private drawMap() {
@@ -27,23 +33,12 @@ export class Viewport {
 
                 const type = this.map.getTileType(x, y);
                 switch (type) {
-                    case TileType.Grassland:
-                        this.drawGrassland(pixelX, pixelY);
-                        break;
-                    case TileType.Mountains:
-                        this.drawMountain(pixelX, pixelY);
-                        break;
-                    case TileType.Water:
-                        this.drawWater(pixelX, pixelY);
-                        break;
-                    case TileType.Forest:
-                        this.drawForest(pixelX, pixelY);
-                        break;
-                    case TileType.Town:
-                        this.drawTown(pixelX, pixelY);
-                        break;
-                    default:
-                        break;
+                    case TileType.Grassland: this.drawGrassland(pixelX, pixelY); break;
+                    case TileType.Mountains: this.drawMountain(pixelX, pixelY); break;
+                    case TileType.Water: this.drawWater(pixelX, pixelY); break;
+                    case TileType.Forest: this.drawForest(pixelX, pixelY); break;
+                    case TileType.Town: this.drawTown(pixelX, pixelY); break;
+                    default: break;
                 }
             }
         }

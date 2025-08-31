@@ -86,8 +86,15 @@ export class WorldMap {
 
     public isValidMove(direction: [number, number]): boolean {
         const curPos = this.player.getPosition();
-        const destTile = this.getTileType(curPos[0] + direction[0], curPos[1] + direction[1]);
+        const xDir = curPos[0] + direction[0];
+        const yDir = curPos[1] + direction[1];
+        
 
+        if (xDir < 0 || xDir >= this.getWidth() || yDir < 0 || yDir >= this.getHeight()) {
+            return false;
+        }
+        
+        const destTile = this.getTileType(curPos[0] + direction[0], curPos[1] + direction[1]);
         if (destTile === TileType.Mountains || destTile === TileType.Water) {
             return false;
         }
@@ -96,7 +103,11 @@ export class WorldMap {
         }
     }
 
-    public getPlayerTilePos(): [number, number] {
+    public getPlayerVisualPos(): [number, number] {
+        return this.player.getVisualPosition();
+    }
+
+    public getPlayerPosition(): [number, number] {
         return this.player.getPosition();
     }
 

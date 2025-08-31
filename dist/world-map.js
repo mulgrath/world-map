@@ -61,6 +61,11 @@ export class WorldMap {
     }
     isValidMove(direction) {
         const curPos = this.player.getPosition();
+        const xDir = curPos[0] + direction[0];
+        const yDir = curPos[1] + direction[1];
+        if (xDir < 0 || xDir >= this.getWidth() || yDir < 0 || yDir >= this.getHeight()) {
+            return false;
+        }
         const destTile = this.getTileType(curPos[0] + direction[0], curPos[1] + direction[1]);
         if (destTile === 1 /* TileType.Mountains */ || destTile === 2 /* TileType.Water */) {
             return false;
@@ -69,7 +74,10 @@ export class WorldMap {
             return true;
         }
     }
-    getPlayerTilePos() {
+    getPlayerVisualPos() {
+        return this.player.getVisualPosition();
+    }
+    getPlayerPosition() {
         return this.player.getPosition();
     }
     getTypeByChar(char) {

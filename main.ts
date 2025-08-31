@@ -14,7 +14,17 @@ if (!ctx) {
 }
 
 const viewport = new Viewport(map, ctx);
-viewport.render();
+
+let lastTime = 0;
+function gameLoop(currentTime: number) {
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    player.update(deltaTime);
+    viewport.render();
+
+    requestAnimationFrame(gameLoop);
+}
 
 function handleInput() {
     const moveDir = inputHandler.getDirection();
@@ -22,7 +32,6 @@ function handleInput() {
         if (map.isValidMove(moveDir)) {
             player.moveInDirection(moveDir);
             inputHandler.resetDirection();
-            viewport.render();
         } else {
             inputHandler.resetDirection();
         }
@@ -30,3 +39,4 @@ function handleInput() {
 }
 
 inputHandler.setMoveCallback(handleInput);
+requestAnimationFrame(gameLoop);
