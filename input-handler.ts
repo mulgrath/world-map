@@ -1,29 +1,32 @@
 export class InputHandler {
     private moveDirection: [number, number];
+    private inputBlocked: boolean = false;
     private moveCallback?: () => void;
+    private mapToggleCallback?: () => void;
 
     constructor () {
         this.moveDirection = [0, 0];
 
         window.addEventListener('keydown', (event: KeyboardEvent) => {
+            if (event.key === 'm') {
+                this.mapToggleCallback?.();
+                return;
+            }
+
+            if (this.inputBlocked) return;
+
             if (event.key === 'ArrowRight' || event.key === 'd') {
                 this.moveRight();
             }
-        });
 
-        window.addEventListener('keydown', (event: KeyboardEvent) => {
             if (event.key === 'ArrowLeft' || event.key === 'a') {
                 this.moveLeft();
             }
-        });
 
-        window.addEventListener('keydown', (event: KeyboardEvent) => {
             if (event.key === 'ArrowUp' || event.key === 'w') {
                 this.moveUp();
             }
-        });
 
-        window.addEventListener('keydown', (event: KeyboardEvent) => {
             if (event.key === 'ArrowDown' || event.key === 's') {
                 this.moveDown();
             }
@@ -32,6 +35,14 @@ export class InputHandler {
 
     public setMoveCallback(callback: () => void) {
         this.moveCallback = callback;
+    }
+
+    public setMapToggleCallback(callback: () => void) {
+        this.mapToggleCallback = callback;
+    }
+
+    public setInputBlocked(blocked: boolean) {
+        this.inputBlocked = blocked;
     }
 
     public getDirection(): [number, number] {

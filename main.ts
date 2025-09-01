@@ -3,12 +3,15 @@ import { Viewport } from "./viewport.js";
 import { Player } from "./player.js";
 import { InputHandler } from "./input-handler.js";
 import { Camera } from "./camera.js";
+import { WorldMapOverlay } from "./world-map-overlay.js";
 
 const worldWidth = 40;
 const worldHeight = 30;
 const player = new Player(2, 6);
 const map = new WorldMap(worldWidth, worldHeight, player);
+const overlay = new WorldMapOverlay(map);
 const inputHandler = new InputHandler();
+let isMapOverlayOpen = false;
 
 const canvas = document.getElementById('map-canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
@@ -30,6 +33,7 @@ function gameLoop(currentTime: number) {
     player.update(deltaTime);
     camera.followPlayer(map.getPlayerVisualPos());
     viewport.render();
+    overlay.render(ctx!, map.getPlayerVisualPos());
 
     if (pendingEncounter && !player.getIsAnimating()) {
         // Show encounter UI, transition to combat, etc.
@@ -42,6 +46,8 @@ function gameLoop(currentTime: number) {
 }
 
 function handleInput() {
+    if (isMapOverlayOpen) return;
+
     const moveDir = inputHandler.getDirection();
     if (moveDir[0] !== 0 || moveDir[1] !== 0) {
         if (map.isValidMove(moveDir)) {
@@ -51,6 +57,14 @@ function handleInput() {
             inputHandler.resetDirection();
         }
     }
+}
+
+function handleMapToggle() {
+    isMapOverlayOpen = !isMapOverlayOpen;
+    inputHandler.setInputBlocked(isMapOverlayOpen);
+    overlay.toggle();
+    inputHandler.resetDirection();
+    console.log(`Map overlay is open: ${isMapOverlayOpen}`);
 }
 
 function showEncounter(enemies: string[]) {
@@ -80,3 +94,5 @@ map.setEncounterCallback((enemies) => {
 player.setMovementCompleteCallback(() => {
     map.checkForEncounterAtCurrentPosition();
 });
+
+inputHandler.setMapToggleCallback(handleMapToggle);
