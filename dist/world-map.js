@@ -43,9 +43,18 @@ const TILE_NAMES = {
     [3 /* TileType.Forest */]: "forest",
     [4 /* TileType.Town */]: "town",
 };
+const ENCOUNTER_RATES = {
+    [0 /* TileType.Grassland */]: 15,
+    [3 /* TileType.Forest */]: 25,
+};
+const ENEMY_TABLES = {
+    [0 /* TileType.Grassland */]: ['slime', 'goblin'],
+    [3 /* TileType.Forest */]: ['orc', 'goblin'],
+};
 export class WorldMap {
     constructor(width, height, player) {
         this.grid = [];
+        this.stepsSinceEncounter = 0;
         const cleanMapString = mapString.replace(/\s+/g, "");
         let curTileId = 0;
         for (let y = 0; y < height; y++) {
@@ -74,6 +83,34 @@ export class WorldMap {
     getHeight() {
         return this.grid.length;
     }
+    setEncounterCallback(callback) {
+        this.encounterCallback = callback;
+    }
+    checkForEncounterAtCurrentPosition() {
+        const currentPos = this.player.getPosition();
+        const tileType = this.getTileType(currentPos[0], currentPos[1]);
+        this.checkForEncounter(tileType);
+    }
+    checkForEncounter(tileType) {
+        this.stepsSinceEncounter++;
+        const encounterRate = ENCOUNTER_RATES[tileType];
+        const enemyList = ENEMY_TABLES[tileType];
+        if (!encounterRate || !enemyList || enemyList.length === 0)
+            return;
+        const roll = Math.floor(Math.random() * 100) - this.stepsSinceEncounter;
+        console.log(`Roll: ${roll}`);
+        if (roll < encounterRate) {
+            const enemies = this.selectEnemies(enemyList);
+            if (this.encounterCallback) {
+                this.encounterCallback(enemies);
+            }
+            this.stepsSinceEncounter = 0;
+        }
+    }
+    selectEnemies(enemyList) {
+        const randomIndex = Math.floor(Math.random() * enemyList.length);
+        return [enemyList[randomIndex]];
+    }
     isValidMove(direction) {
         const curPos = this.player.getPosition();
         const xDir = curPos[0] + direction[0];
@@ -85,9 +122,7 @@ export class WorldMap {
         if (destTile === 1 /* TileType.Mountains */ || destTile === 2 /* TileType.Water */) {
             return false;
         }
-        else {
-            return true;
-        }
+        return true;
     }
     getPlayerVisualPos() {
         return this.player.getVisualPosition();

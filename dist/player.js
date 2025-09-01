@@ -23,6 +23,9 @@ export class Player {
             this.isAnimating = false;
             this.visualX = this.animationTargetX;
             this.visualY = this.animationTargetY;
+            if (this.movementCompleteCallback) {
+                this.movementCompleteCallback();
+            }
         }
         else {
             this.visualX = this.lerp(this.animationStartX, this.animationTargetX, this.animationProgress);
@@ -32,8 +35,14 @@ export class Player {
     getPosition() {
         return [this.x, this.y];
     }
+    getIsAnimating() {
+        return this.isAnimating;
+    }
     getVisualPosition() {
         return [this.visualX, this.visualY];
+    }
+    setMovementCompleteCallback(callback) {
+        this.movementCompleteCallback = callback;
     }
     moveInDirection(direction) {
         if (this.isAnimating)

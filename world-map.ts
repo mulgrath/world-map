@@ -48,7 +48,7 @@ const TILE_COLORS = {
     [TileType.Water]: "#2362c2ff",
     [TileType.Forest]: "#00500bff",
     [TileType.Town]: "#4b3311ff",
-}
+};
 
 const TILE_NAMES = {
     [TileType.Grassland]: "grassland",
@@ -56,11 +56,24 @@ const TILE_NAMES = {
     [TileType.Water]: "water",
     [TileType.Forest]: "forest",
     [TileType.Town]: "town",
-}
+};
+
+const ENCOUNTER_RATES: { [key in TileType]?: number } = {
+    [TileType.Grassland]: 15,
+    [TileType.Forest]: 25,
+};
+
+const ENEMY_TABLES: { [key in TileType]?: string[] } = {
+    [TileType.Grassland]: ['slime', 'goblin'],
+    [TileType.Forest]: ['orc', 'goblin'],
+};
 
 export class WorldMap {
     private grid: number[][] = [];
     private player: Player;
+
+    private stepsSinceEncounter: number = 0;
+    private encounterCallback?: (enemies: string[]) => void;
 
     constructor (width: number, height: number, player: Player) {
         const cleanMapString = mapString.replace(/\s+/g, "");
@@ -99,6 +112,40 @@ export class WorldMap {
         return this.grid.length;
     }
 
+    public setEncounterCallback(callback: (enemies: string[]) => void) {
+        this.encounterCallback = callback;
+    }
+
+    public checkForEncounterAtCurrentPosition() {
+        const currentPos = this.player.getPosition();
+        const tileType = this.getTileType(currentPos[0], currentPos[1]);
+        this.checkForEncounter(tileType);
+    }
+
+    private checkForEncounter(tileType: TileType) {
+        this.stepsSinceEncounter++;
+
+        const encounterRate = ENCOUNTER_RATES[tileType];
+        const enemyList = ENEMY_TABLES[tileType];
+
+        if (!encounterRate || !enemyList || enemyList.length === 0) return;
+
+        const roll = Math.floor(Math.random() * 100) - this.stepsSinceEncounter;
+        console.log(`Roll: ${roll}`);
+        if (roll < encounterRate) {
+            const enemies = this.selectEnemies(enemyList);
+            if (this.encounterCallback) {
+                this.encounterCallback(enemies);
+            }
+            this.stepsSinceEncounter = 0;
+        }
+    }
+
+    private selectEnemies(enemyList: string[]): string[] {
+        const randomIndex = Math.floor(Math.random() * enemyList.length);
+        return [enemyList[randomIndex]];
+    }
+
     public isValidMove(direction: [number, number]): boolean {
         const curPos = this.player.getPosition();
         const xDir = curPos[0] + direction[0];
@@ -113,9 +160,8 @@ export class WorldMap {
         if (destTile === TileType.Mountains || destTile === TileType.Water) {
             return false;
         }
-        else {
-            return true;
-        }
+        
+        return true;
     }
 
     public getPlayerVisualPos(): [number, number] {

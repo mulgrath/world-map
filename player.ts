@@ -15,6 +15,8 @@ export class Player {
     private animationProgress: number = 0;  // 0.0 to 1.0
     private animationDuration: number = 250;
 
+    private movementCompleteCallback?: () => void;
+
     constructor (startX: number, startY: number) {
         this.x = startX;
         this.y = startY;
@@ -24,6 +26,7 @@ export class Player {
 
     public update(deltaTime: number) {
         if (!this.isAnimating) return;
+
         if (deltaTime > 20) console.log("Slow frame:", deltaTime); 
         this.animationProgress += deltaTime / this.animationDuration;
 
@@ -32,6 +35,10 @@ export class Player {
             this.isAnimating = false;
             this.visualX = this.animationTargetX;
             this.visualY = this.animationTargetY;
+
+            if (this.movementCompleteCallback) {
+                this.movementCompleteCallback();
+            }
         } else {
             this.visualX = this.lerp(this.animationStartX, this.animationTargetX, this.animationProgress);
             this.visualY = this.lerp(this.animationStartY, this.animationTargetY, this.animationProgress);
@@ -42,8 +49,16 @@ export class Player {
         return [this.x, this.y];
     }
 
+    public getIsAnimating(): boolean {
+        return this.isAnimating;
+    }
+
     public getVisualPosition(): [number, number] {
         return [this.visualX, this.visualY];
+    }
+
+    public setMovementCompleteCallback(callback: () => void) {
+        this.movementCompleteCallback = callback;
     }
 
     public moveInDirection(direction: [number, number]) {
