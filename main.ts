@@ -2,10 +2,14 @@ import { WorldMap } from "./world-map.js";
 import { Viewport } from "./viewport.js";
 import { Player } from "./player.js";
 import { InputHandler } from "./input-handler.js";
+import { Camera } from "./camera.js";
 
-const player = new Player(3, 1);
-const map = new WorldMap(20, 15, player);
+const worldWidth = 40;
+const worldHeight = 30;
+const player = new Player(2, 6);
+const map = new WorldMap(worldWidth, worldHeight, player);
 const inputHandler = new InputHandler();
+
 const canvas = document.getElementById('map-canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
 
@@ -13,7 +17,8 @@ if (!ctx) {
     throw new Error("Missing HTML elements!");
 }
 
-const viewport = new Viewport(map, ctx);
+const camera = new Camera(canvas.width, canvas.height, worldWidth, worldHeight);
+const viewport = new Viewport(map, ctx, camera);
 
 let lastTime = 0;
 function gameLoop(currentTime: number) {
@@ -21,6 +26,7 @@ function gameLoop(currentTime: number) {
     lastTime = currentTime;
 
     player.update(deltaTime);
+    camera.followPlayer(map.getPlayerVisualPos());
     viewport.render();
 
     requestAnimationFrame(gameLoop);

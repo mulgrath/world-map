@@ -1,12 +1,15 @@
 import { WorldMap, TILE_SIZE, TileType } from "./world-map.js";
+import { Camera } from "./camera.js";
 
 export class Viewport {
     private map: WorldMap;
     private ctx: CanvasRenderingContext2D;
+    private camera: Camera;
 
-    constructor (map: WorldMap, canvasContext: CanvasRenderingContext2D) {
+    constructor (map: WorldMap, canvasContext: CanvasRenderingContext2D, camera: Camera) {
         this.map = map;
         this.ctx = canvasContext;
+        this.camera = camera;
     }
 
     public render(): void {
@@ -19,26 +22,32 @@ export class Viewport {
     }
 
     private drawMap() {
-        const width = this.map.getWidth();
-        const height = this.map.getHeight();
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                const color = this.map.getTileColor(x, y);
-                this.ctx.fillStyle = color;
-                const pixelX = x * TILE_SIZE;
-                const pixelY = y * TILE_SIZE;
-                this.ctx.fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE);
+        const bounds = this.camera.getVisibleTileBounds();
 
-                const type = this.map.getTileType(x, y);
-                switch (type) {
-                    case TileType.Grassland: this.drawGrassland(pixelX, pixelY); break;
-                    case TileType.Mountains: this.drawMountain(pixelX, pixelY); break;
-                    case TileType.Water: this.drawWater(pixelX, pixelY); break;
-                    case TileType.Forest: this.drawForest(pixelX, pixelY); break;
-                    case TileType.Town: this.drawTown(pixelX, pixelY); break;
-                    default: break;
-                }
+        for (let y = bounds.startY; y < bounds.endY; y++) {
+            for (let x = bounds.startX; x < bounds.endX; x++) {
+                const worldX = x * TILE_SIZE;
+                const worldY = y * TILE_SIZE;
+                const [screenX, screenY] = this.camera.worldToScreen(worldX, worldY);
+
+                this.drawTile(screenX, screenY, x, y);
             }
+        }
+    }
+
+    private drawTile(screenX: number, screenY: number, tileX: number, tileY: number) {
+        const color = this.map.getTileColor(tileX, tileY);
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+
+        const type = this.map.getTileType(tileX, tileY);
+        switch (type) {
+            case TileType.Grassland: this.drawGrassland(screenX, screenY); break;
+            case TileType.Mountains: this.drawMountain(screenX, screenY); break;
+            case TileType.Water: this.drawWater(screenX, screenY); break;
+            case TileType.Forest: this.drawForest(screenX, screenY); break;
+            case TileType.Town: this.drawTown(screenX, screenY); break;
+            default: break;
         }
     }
 
@@ -74,9 +83,11 @@ export class Viewport {
     }
 
     private drawPlayer(position: [number, number]) {
-        const pixelX = position[0] * TILE_SIZE;
-        const pixelY = position[1] * TILE_SIZE;
+        const worldX = position[0] * TILE_SIZE;
+        const worldY = position[1] * TILE_SIZE;
+        const [screenX, screenY] = this.camera.worldToScreen(worldX, worldY);
+
         this.ctx.fillStyle = "#ffe600ff";
-        this.ctx.fillRect(pixelX + 10, pixelY + 10, 10, 10)
+        this.ctx.fillRect(screenX + 10, screenY + 10, 10, 10)
     }
 }
