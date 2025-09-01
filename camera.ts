@@ -16,7 +16,6 @@ export class Camera {
         this.worldHeight = worldHeight;
     }
     
-
     public followPlayer(playerPos: [number, number]) {
         // Center camera on player (player world pos minus half the screen size)
         this.x = (playerPos[0] * TILE_SIZE) - (this.canvasWidth / 2);
